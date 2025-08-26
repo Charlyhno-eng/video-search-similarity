@@ -1,0 +1,10 @@
+opencv-python
+fastapi
+uvicorn
+pillow
+torch
+torchvision
+efficientnet_pytorch
+scikit-learn
+numpy
+scikit-learn
