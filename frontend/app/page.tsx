@@ -1,0 +1,27 @@
+"use client";
+
+import { VideoSelector } from "../components/VideoSelector/VideoSelector";
+import { SimilarVideos, SimilarVideosType } from "../components/SimilarVideos/SimilarVideos";
+import { Box } from "@mui/material";
+import { useState } from "react";
+
+export default function Home() {
+  const [similarVideos, setSimilarVideos] = useState<SimilarVideosType[]>([]);
+
+  // This callback would be passed to VideoSelector to update similar images
+  const handleSimilarVideos = (images: SimilarVideosType[]) => {
+    setSimilarVideos(images);
+  };
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh", px: 4, py: 6 }}>
+      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+        <VideoSelector onSimilarVideos={handleSimilarVideos} />
+      </Box>
+
+      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start", pl: 4 }}>
+        <SimilarVideos videos={similarVideos} />
+      </Box>
+    </Box>
+  );
+}

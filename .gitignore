@@ -1,0 +1,39 @@
+# === Python / Backend ===
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+embeddings/
+images/
+.DS_Store
+
+# Your videos database
+videos_database/
+embeddings/
+
+# Environment variables
+.env
+.env.*
+
+# IDE/editor config files
+.ropeproject/
+.vscode/
+.idea/
+
+# === Node / Frontend (Next.js) ===
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
