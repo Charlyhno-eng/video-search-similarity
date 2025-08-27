@@ -14,6 +14,7 @@ images/
 # Your videos database
 videos_database/
 embeddings/
+thumbnails/
 
 # Environment variables
 .env
