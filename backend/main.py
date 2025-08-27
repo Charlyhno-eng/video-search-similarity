@@ -22,13 +22,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 videos_path = os.path.join(BASE_DIR, "videos_database")
-app.mount("/videos_database", StaticFiles(directory=videos_path), name="videos_database")
+embeddings_dir = os.path.join(BASE_DIR, "embeddings")
+thumbnails_path = os.path.join(BASE_DIR, "thumbnails")
 
+# Serve static files
+app.mount("/videos_database", StaticFiles(directory=videos_path), name="videos_database")
+app.mount("/thumbnails", StaticFiles(directory=thumbnails_path), name="thumbnails")
+
+# EfficientNet model
 model = EfficientNet.from_pretrained('efficientnet-b4')
 model.eval()
 
+# Image transform
 transform = transforms.Compose([
     transforms.Resize(384),
     transforms.CenterCrop(380),
@@ -36,17 +44,14 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+# Helper: extract frames from video bytes
 def extract_frames_from_bytes(video_bytes, frame_rate=1):
-    """Extract frames from uploaded video bytes (1 frame every `frame_rate` seconds)."""
-    np_arr = np.frombuffer(video_bytes, np.uint8)
     tmp_file = "temp_video.mp4"
     with open(tmp_file, "wb") as f:
         f.write(video_bytes)
     cap = cv2.VideoCapture(tmp_file)
-
     fps = cap.get(cv2.CAP_PROP_FPS)
     interval = max(1, int(fps * frame_rate))
-
     frames = []
     frame_idx = 0
     while cap.isOpened():
@@ -61,8 +66,8 @@ def extract_frames_from_bytes(video_bytes, frame_rate=1):
     os.remove(tmp_file)
     return frames
 
+# Helper: extract video embedding
 def extract_video_embedding_from_bytes(video_bytes, frame_rate=1):
-    """Generate a single embedding for a video by averaging frame embeddings."""
     frames = extract_frames_from_bytes(video_bytes, frame_rate=frame_rate)
     embeddings = []
     for img in frames:
@@ -76,15 +81,15 @@ def extract_video_embedding_from_bytes(video_bytes, frame_rate=1):
         return None
     return np.mean(embeddings, axis=0)
 
-embeddings_dir = 'embeddings'
+# Load precomputed embeddings
 video_embeddings = {}
 for f in os.listdir(embeddings_dir):
     if f.endswith('.npy'):
         path = os.path.join(embeddings_dir, f)
         video_embeddings[f[:-4]] = np.load(path)
 
+# Similarity search
 def find_similar_videos(query_embedding, top_k=6):
-    """Find top-k most similar videos using cosine similarity."""
     similarities = []
     for filename, db_embedding in video_embeddings.items():
         sim = cosine_similarity(
@@ -95,12 +100,13 @@ def find_similar_videos(query_embedding, top_k=6):
     similarities.sort(key=lambda x: x[1], reverse=True)
     return similarities[:top_k]
 
+# Base URL for videos
 BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
 
+# Upload endpoint
 @app.post("/upload-video/")
 async def upload_video(file: UploadFile = File(...)):
     contents = await file.read()
-
     embedding = extract_video_embedding_from_bytes(contents, frame_rate=1)
 
     if embedding is None:
@@ -110,12 +116,23 @@ async def upload_video(file: UploadFile = File(...)):
 
     results = []
     for fname, sim in similar_videos:
-        url = BASE_VIDEO_URL + fname
-        results.append({"filename": fname, "similarity": float(sim), "url": url})
+        video_url = BASE_VIDEO_URL + fname
+        base_name = fname.replace(".mp4", "")
+        thumbnail_url = f"http://localhost:8000/thumbnails/{base_name}.jpg"
+        results.append({
+            "filename": fname,
+            "similarity": float(sim),
+            "url": video_url,
+            "thumbnail_url": thumbnail_url
+        })
+
+    uploaded_base_name = os.path.splitext(file.filename)[0]
+    uploaded_thumbnail_url = f"http://localhost:8000/thumbnails/{uploaded_base_name}.jpg"
 
     return {
         "filename": file.filename,
         "embedding": embedding.tolist(),
+        "thumbnail_url": uploaded_thumbnail_url,
         "similar_videos": results,
         "message": "Video received, embedding extracted, similar videos found"
     }

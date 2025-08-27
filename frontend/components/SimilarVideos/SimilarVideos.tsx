@@ -3,15 +3,16 @@
 import React from "react";
 import { Box, Card, CardMedia, CardContent, Typography, Grid } from "@mui/material";
 
-export type SimilarVideosType = {
+export type SimilarVideoType = {
   filename: string;
   similarity: number;
   url: string;
+  thumbnail_url: string;
 };
 
 type SimilarVideosProps = {
-  videos: SimilarVideosType[];
-};
+  videos: SimilarVideoType[];
+}
 
 export function SimilarVideos({ videos }: SimilarVideosProps) {
   if (videos.length === 0) {
@@ -19,7 +20,7 @@ export function SimilarVideos({ videos }: SimilarVideosProps) {
       <Typography variant="body1">No similar videos found yet.</Typography>
     );
   }
-
+console.log(videos)
   return (
     <Box width="100%">
       <Typography variant="h6" gutterBottom>Most Similar Videos</Typography>
@@ -28,11 +29,14 @@ export function SimilarVideos({ videos }: SimilarVideosProps) {
         {videos.map((vid, index) => (
           <Grid key={index} size={6}>
             <Card>
-              <CardMedia component="video" height="200" src={vid.url} controls />
+              <CardMedia component="img" height="200" image={vid.thumbnail_url} alt={vid.filename} />
               <CardContent>
-                <Typography variant="body2">
-                  <strong>{vid.filename}</strong> - Similarity: {(vid.similarity * 100).toFixed(2)}%
-                </Typography>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle1">{vid.filename}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {(vid.similarity * 100).toFixed(2)}%
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>

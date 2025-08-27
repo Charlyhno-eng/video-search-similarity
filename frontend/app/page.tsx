@@ -1,15 +1,15 @@
 "use client";
 
 import { VideoSelector } from "../components/VideoSelector/VideoSelector";
-import { SimilarVideos, SimilarVideosType } from "../components/SimilarVideos/SimilarVideos";
+import { SimilarVideos, SimilarVideoType } from "../components/SimilarVideos/SimilarVideos";
 import { Box } from "@mui/material";
 import { useState } from "react";
 
 export default function Home() {
-  const [similarVideos, setSimilarVideos] = useState<SimilarVideosType[]>([]);
+  const [similarVideos, setSimilarVideos] = useState<SimilarVideoType[]>([]);
 
   // This callback would be passed to VideoSelector to update similar images
-  const handleSimilarVideos = (images: SimilarVideosType[]) => {
+  const handleSimilarVideos = (images: SimilarVideoType[]) => {
     setSimilarVideos(images);
   };
 
