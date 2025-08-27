@@ -1,9 +1,16 @@
 "use client";
 
 import { VideoSelector } from "../components/VideoSelector/VideoSelector";
-import { SimilarVideos, SimilarVideoType } from "../components/SimilarVideos/SimilarVideos";
+import { SimilarVideos } from "../components/SimilarVideos/SimilarVideos";
 import { Box } from "@mui/material";
 import { useState } from "react";
+
+export type SimilarVideoType = {
+  filename: string;
+  similarity: number;
+  url: string;
+  thumbnail_url: string;
+};
 
 export default function Home() {
   const [similarVideos, setSimilarVideos] = useState<SimilarVideoType[]>([]);

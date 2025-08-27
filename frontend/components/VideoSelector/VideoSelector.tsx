@@ -3,13 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { Button, Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { Movie } from "@mui/icons-material";
-
-export type SimilarVideoType = {
-  filename: string;
-  similarity: number;
-  url: string;
-  thumbnail_url: string;
-};
+import { SimilarVideoType } from "../../app/page"
 
 type BackendResponse = {
   filename: string;
@@ -18,11 +12,7 @@ type BackendResponse = {
   similar_videos: SimilarVideoType[];
 };
 
-type VideoSelectorProps = {
-  onSimilarVideos: (videos: SimilarVideoType[]) => void;
-};
-
-export function VideoSelector({ onSimilarVideos }: VideoSelectorProps) {
+export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: SimilarVideoType[]) => void }) {
   const [backendResponse, setBackendResponse] = useState<BackendResponse | null>(null);
 
   const uploadVideo = async (file: File) => {
@@ -66,7 +56,7 @@ export function VideoSelector({ onSimilarVideos }: VideoSelectorProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 4 }}>
       <input
-        accept="video/mp4"
+      accept="video/mp4,video/quicktime,video/x-msvideo"
         style={{ display: "none" }}
         id="contained-button-file"
         type="file"

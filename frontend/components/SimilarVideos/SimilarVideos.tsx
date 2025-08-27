@@ -2,25 +2,15 @@
 
 import React from "react";
 import { Box, Card, CardMedia, CardContent, Typography, Grid } from "@mui/material";
+import { SimilarVideoType } from "../../app/page"
 
-export type SimilarVideoType = {
-  filename: string;
-  similarity: number;
-  url: string;
-  thumbnail_url: string;
-};
-
-type SimilarVideosProps = {
-  videos: SimilarVideoType[];
-}
-
-export function SimilarVideos({ videos }: SimilarVideosProps) {
+export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
   if (videos.length === 0) {
     return (
       <Typography variant="body1">No similar videos found yet.</Typography>
     );
   }
-console.log(videos)
+
   return (
     <Box width="100%">
       <Typography variant="h6" gutterBottom>Most Similar Videos</Typography>

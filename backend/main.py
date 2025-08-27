@@ -117,7 +117,7 @@ async def upload_video(file: UploadFile = File(...)):
     results = []
     for fname, sim in similar_videos:
         video_url = BASE_VIDEO_URL + fname
-        base_name = fname.replace(".mp4", "")
+        base_name, _ = os.path.splitext(fname)  # support mp4, mov, avi
         thumbnail_url = f"http://localhost:8000/thumbnails/{base_name}.jpg"
         results.append({
             "filename": fname,
@@ -126,7 +126,7 @@ async def upload_video(file: UploadFile = File(...)):
             "thumbnail_url": thumbnail_url
         })
 
-    uploaded_base_name = os.path.splitext(file.filename)[0]
+    uploaded_base_name, _ = os.path.splitext(file.filename)  # support mp4, mov, avi
     uploaded_thumbnail_url = f"http://localhost:8000/thumbnails/{uploaded_base_name}.jpg"
 
     return {
