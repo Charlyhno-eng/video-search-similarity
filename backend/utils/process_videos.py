@@ -7,6 +7,14 @@ import torch
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+VIDEOS_DIR = os.path.join(ROOT_DIR, "videos_database")
+EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "embeddings")
+THUMBNAILS_DIR = os.path.join(ROOT_DIR, "thumbnails")
+
+os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
+os.makedirs(THUMBNAILS_DIR, exist_ok=True)
+
 model = EfficientNet.from_pretrained('efficientnet-b4')
 model.eval()
 
@@ -17,20 +25,12 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-def extract_embedding(image_path):
-    image = Image.open(image_path).convert('RGB')
-    img_tensor = transform(image).unsqueeze(0)
-    with torch.no_grad():
-        features = model.extract_features(img_tensor)
-        pooled = F.adaptive_avg_pool2d(features, 1)
-        embedding = pooled.view(pooled.size(0), -1)
-    return embedding.squeeze(0).numpy()
-
 def extract_frames(video_path, frame_rate=1):
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps <= 0:
+        return []
     interval = int(fps * frame_rate)
-
     frames = []
     frame_idx = 0
     while cap.isOpened():
@@ -58,19 +58,21 @@ def extract_video_embedding(video_path, frame_rate=1):
         return None
     return np.mean(embeddings, axis=0)
 
-videos_dir = "videos_database"
-embeddings_dir = "embeddings"
-os.makedirs(embeddings_dir, exist_ok=True)
+def generate_thumbnail(video_path, thumbnail_path):
+    cap = cv2.VideoCapture(video_path)
+    ret, frame = cap.read()
+    cap.release()
+    if ret:
+        cv2.imwrite(thumbnail_path, frame)
 
-for video_name in os.listdir(videos_dir):
-    if not video_name.lower().endswith(".mp4"):
-        continue
-    video_path = os.path.join(videos_dir, video_name)
-    print(f"Processing {video_name} ...")
-    embedding = extract_video_embedding(video_path, frame_rate=1)  # 1 frame par seconde
-    if embedding is not None:
-        save_path = os.path.join(embeddings_dir, video_name + ".npy")
-        np.save(save_path, embedding)
-        print(f"Saved embedding for {video_name} with shape {embedding.shape}")
-    else:
-        print(f"No frames extracted from {video_name}")
+if __name__ == "__main__":
+    for video_name in os.listdir(VIDEOS_DIR):
+        if not video_name.lower().endswith(".mp4"):
+            continue
+        video_path = os.path.join(VIDEOS_DIR, video_name)
+        embedding = extract_video_embedding(video_path, frame_rate=1)
+        if embedding is not None:
+            save_path = os.path.join(EMBEDDINGS_DIR, video_name + ".npy")
+            np.save(save_path, embedding)
+        thumbnail_path = os.path.join(THUMBNAILS_DIR, video_name.replace(".mp4", ".jpg"))
+        generate_thumbnail(video_path, thumbnail_path)
