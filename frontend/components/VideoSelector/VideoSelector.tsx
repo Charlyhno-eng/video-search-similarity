@@ -54,7 +54,7 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
   );
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 14 }}>
       <input
         accept="video/mp4,video/quicktime,video/x-msvideo"
         style={{ display: "none" }}
