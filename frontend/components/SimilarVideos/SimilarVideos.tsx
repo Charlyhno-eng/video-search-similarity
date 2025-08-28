@@ -22,7 +22,7 @@ export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Typography variant="subtitle1" noWrap>{vid.filename}</Typography>
-                  <Typography variant="body2" color="text.secondary">{(vid.similarity * 100).toFixed(2)}%</Typography>
+                  <Typography variant="body2" color="text.secondary">Similarity : {(vid.similarity * 100).toFixed(2)}%</Typography>
                 </Box>
 
                 <Typography variant="body2" color="text.secondary">Video class : {formatFolderName(vid.subfolder)}</Typography>
