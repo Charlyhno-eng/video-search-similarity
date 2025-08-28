@@ -66,13 +66,23 @@ def generate_thumbnail(video_path, thumbnail_path):
         cv2.imwrite(thumbnail_path, frame)
 
 if __name__ == "__main__":
-    for video_name in os.listdir(VIDEOS_DIR):
-        if not video_name.lower().endswith(".mp4"):
-            continue
-        video_path = os.path.join(VIDEOS_DIR, video_name)
-        embedding = extract_video_embedding(video_path, frame_rate=1)
-        if embedding is not None:
-            save_path = os.path.join(EMBEDDINGS_DIR, video_name + ".npy")
-            np.save(save_path, embedding)
-        thumbnail_path = os.path.join(THUMBNAILS_DIR, video_name.replace(".mp4", ".jpg"))
-        generate_thumbnail(video_path, thumbnail_path)
+    for root, _, files in os.walk(VIDEOS_DIR):
+        for video_name in files:
+            if not video_name.lower().endswith((".mp4", ".avi", ".mov")):
+                continue
+
+            video_path = os.path.join(root, video_name)
+            rel_path = os.path.relpath(video_path, VIDEOS_DIR)
+
+            embedding_path = os.path.join(EMBEDDINGS_DIR, rel_path + ".npy")
+            thumbnail_path = os.path.join(THUMBNAILS_DIR, rel_path)
+            thumbnail_path = os.path.splitext(thumbnail_path)[0] + ".jpg"
+
+            os.makedirs(os.path.dirname(embedding_path), exist_ok=True)
+            os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
+
+            embedding = extract_video_embedding(video_path, frame_rate=1)
+            if embedding is not None:
+                np.save(embedding_path, embedding)
+
+            generate_thumbnail(video_path, thumbnail_path)
