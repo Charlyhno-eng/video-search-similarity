@@ -22,7 +22,7 @@ export default function Home() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh", p: 4 }}>
+    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh", p: 2.5 }}>
       <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
         <VideoSelector onSimilarVideos={handleSimilarVideos} />
       </Box>

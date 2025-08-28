@@ -14,7 +14,7 @@ export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
     <Box sx={{ width: "100%" }}>
       <Typography variant="h6" gutterBottom>Most Similar Videos</Typography>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={1.5}>
         {videos.map((vid, index) => (
           <Grid key={index} size={6}>
             <Card>
