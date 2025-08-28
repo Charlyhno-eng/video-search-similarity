@@ -13,7 +13,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
-# Enable CORS
+# Enable CORS for frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,21 +22,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-videos_path = os.path.join(BASE_DIR, "videos_database")
-embeddings_dir = os.path.join(BASE_DIR, "embeddings")
-thumbnails_path = os.path.join(BASE_DIR, "thumbnails")
+# --- Define paths ---
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+VIDEOS_DIR = os.path.join(ROOT_DIR, "videos_database")
+EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "embeddings")
+THUMBNAILS_DIR = os.path.join(ROOT_DIR, "thumbnails")
 
-# Serve static files
-app.mount("/videos_database", StaticFiles(directory=videos_path), name="videos_database")
-app.mount("/thumbnails", StaticFiles(directory=thumbnails_path), name="thumbnails")
+app.mount("/videos_database", StaticFiles(directory=VIDEOS_DIR), name="videos_database")
+app.mount("/thumbnails", StaticFiles(directory=THUMBNAILS_DIR), name="thumbnails")
 
-# EfficientNet model
 model = EfficientNet.from_pretrained('efficientnet-b4')
 model.eval()
 
-# Image transform
+# Image preprocessing
 transform = transforms.Compose([
     transforms.Resize(384),
     transforms.CenterCrop(380),
@@ -44,66 +42,83 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Helper: extract frames from video bytes
+VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov"]
+
+# --- Extract frames from uploaded video bytes ---
 def extract_frames_from_bytes(video_bytes, frame_rate=1):
     tmp_file = "temp_video.mp4"
+    # Save uploaded video temporarily to disk
     with open(tmp_file, "wb") as f:
         f.write(video_bytes)
+
     cap = cv2.VideoCapture(tmp_file)
     fps = cap.get(cv2.CAP_PROP_FPS)
-    interval = max(1, int(fps * frame_rate))
+    interval = max(1, int(fps * frame_rate))  # extract frames at the given rate
     frames = []
     frame_idx = 0
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         if frame_idx % interval == 0:
+            # Convert BGR (OpenCV default) to RGB and store as PIL image
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frames.append(Image.fromarray(frame_rgb))
         frame_idx += 1
+
     cap.release()
-    os.remove(tmp_file)
+    os.remove(tmp_file)  # clean up temporary file
     return frames
 
-# Helper: extract video embedding
+# --- Extract EfficientNet embeddings from video frames ---
 def extract_video_embedding_from_bytes(video_bytes, frame_rate=1):
     frames = extract_frames_from_bytes(video_bytes, frame_rate=frame_rate)
     embeddings = []
+
     for img in frames:
-        img_tensor = transform(img).unsqueeze(0)
+        img_tensor = transform(img).unsqueeze(0)  # add batch dimension
         with torch.no_grad():
+            # Extract features from EfficientNet
             features = model.extract_features(img_tensor)
+            # Global average pooling to get single vector per frame
             pooled = F.adaptive_avg_pool2d(features, 1)
             embedding = pooled.view(pooled.size(0), -1)
             embeddings.append(embedding.squeeze(0).numpy())
+
     if len(embeddings) == 0:
         return None
+
+    # Average embeddings across all frames to get a single video embedding
     return np.mean(embeddings, axis=0)
 
-# Load precomputed embeddings
+# --- Load all embeddings from disk (including subfolders) ---
 video_embeddings = {}
-for f in os.listdir(embeddings_dir):
-    if f.endswith('.npy'):
-        path = os.path.join(embeddings_dir, f)
-        video_embeddings[f[:-4]] = np.load(path)
+for root, _, files in os.walk(EMBEDDINGS_DIR):
+    for f in files:
+        if f.endswith('.npy'):
+            full_path = os.path.join(root, f)
+            rel_path = os.path.relpath(full_path, EMBEDDINGS_DIR)  # store relative path
+            video_embeddings[rel_path] = np.load(full_path)
 
-# Similarity search
+# --- Compute cosine similarity to find top-k similar videos ---
 def find_similar_videos(query_embedding, top_k=6):
     similarities = []
-    for filename, db_embedding in video_embeddings.items():
+    for rel_path, db_embedding in video_embeddings.items():
+        # compute cosine similarity between query and database embedding
         sim = cosine_similarity(
             query_embedding.reshape(1, -1),
             db_embedding.reshape(1, -1)
         )[0][0]
-        similarities.append((filename, sim))
+        similarities.append((rel_path, sim))
+    # sort descending by similarity
     similarities.sort(key=lambda x: x[1], reverse=True)
     return similarities[:top_k]
 
-# Base URL for videos
 BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
+BASE_THUMB_URL = "http://localhost:8000/thumbnails/"
 
-# Upload endpoint
+# --- FastAPI endpoint to upload a video and find similar ones ---
 @app.post("/upload-video/")
 async def upload_video(file: UploadFile = File(...)):
     contents = await file.read()
@@ -115,19 +130,36 @@ async def upload_video(file: UploadFile = File(...)):
     similar_videos = find_similar_videos(embedding, top_k=6)
 
     results = []
-    for fname, sim in similar_videos:
-        video_url = BASE_VIDEO_URL + fname
-        base_name, _ = os.path.splitext(fname)
-        thumbnail_url = f"http://localhost:8000/thumbnails/{base_name}.jpg"
+    for rel_path, sim in similar_videos:
+        # Remove '.npy' extension to get original video name
+        video_name = rel_path[:-4]
+
+        # URL for the video
+        video_url = BASE_VIDEO_URL + video_name.replace("\\", "/")
+
+        # Remove video file extension for thumbnail URL
+        filename_no_ext = os.path.basename(video_name)
+        for ext in VIDEO_EXTENSIONS:
+            if filename_no_ext.lower().endswith(ext):
+                filename_no_ext = filename_no_ext[:-len(ext)]
+                break
+
+        subfolder = os.path.dirname(video_name).replace("\\", "/")
+
+        # Build thumbnail URL, handle subfolder or root
+        thumbnail_url = f"{BASE_THUMB_URL}{subfolder}/{filename_no_ext}.jpg" if subfolder else f"{BASE_THUMB_URL}{filename_no_ext}.jpg"
+
         results.append({
-            "filename": fname,
+            "filename": os.path.basename(video_name),
             "similarity": float(sim),
             "url": video_url,
-            "thumbnail_url": thumbnail_url
+            "thumbnail_url": thumbnail_url,
+            "subfolder": subfolder or "root"
         })
 
+    # Thumbnail URL for uploaded video (optional, may not exist)
     uploaded_base_name, _ = os.path.splitext(file.filename)
-    uploaded_thumbnail_url = f"http://localhost:8000/thumbnails/{uploaded_base_name}.jpg"
+    uploaded_thumbnail_url = f"{BASE_THUMB_URL}{uploaded_base_name}.jpg"
 
     return {
         "filename": file.filename,
