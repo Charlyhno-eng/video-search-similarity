@@ -70,3 +70,22 @@ cd ../frontend
 npm install
 npm run dev
 ```
+
+---
+
+## Demonstration
+
+For performance reasons, the full video is not displayed in the web application.
+Instead, the application shows the **video filename** along with its **first frame (thumbnail)**, similar to how YouTube displays video previews.
+Additionally, the **similarity percentage** between the query image and the images in the database is shown.
+
+For testing purposes, I used videos with relatively distinct content:
+- a video of a cliff,
+- a video of rocks in turquoise water,
+- and a video of a forest by a river.
+
+![First test](public/test1.png)
+
+![Second test](public/test2.png)
+
+![Third test](public/test3.png)
