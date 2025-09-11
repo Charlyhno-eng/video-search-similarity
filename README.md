@@ -229,3 +229,5 @@ It is often used in text and biological sequence comparison.
 - [1]. TileDB Academy, “Distance Metrics” _Web site_. [Online]. Available: [https://cloud.tiledb.com/academy/structure/ai-ml/vector-search/foundation/key-concepts/distance-metrics/](https://cloud.tiledb.com/academy/structure/ai-ml/vector-search/foundation/key-concepts/distance-metrics/)
 
 - [2]. LeMarson TV, “Les bases de données vectorielles” _Youtube video_, 2025. [Online]. Available: [https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6](https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6)
+
+- [3]. ResearchGate, “Comparative Study of Image Classification Models Using Deep Learning: MobileNet, ResNet, and EfficientNet” _PDF_, 2025. [Online]. Available: [https://www.researchgate.net/publication/391845914_Comparative_Study_of_Image_Classification_Models_Using_Deep_Learning_MobileNet_ResNet_and_EfficientNet](https://www.researchgate.net/publication/391845914_Comparative_Study_of_Image_Classification_Models_Using_Deep_Learning_MobileNet_ResNet_and_EfficientNet)
