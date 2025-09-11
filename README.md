@@ -7,6 +7,10 @@ The application enables video search by similarity using **EfficientNet-B4 embed
 A **ChromaDB vector database** is used to store and query embeddings efficiently.
 The frontend is built with **Next.js** and **MUI**, while the backend is implemented in **Python (FastAPI)**.
 
+If you would like to **install the application**, click [here](#intallation).
+If you want to **see a demonstration**, click [here](#demonstration).
+If you are interested in **explanations and technology choices**, click [here](#explanations-and-comparisons).
+
 ---
 
 ## Intallation
@@ -85,9 +89,8 @@ For testing purposes, I used videos with relatively distinct content:
 ![Third test](public/test3.png)
 
 ---
----
 
-## **Explanations and comparisons**
+## Explanations and comparisons
 
 ### What is an embedding?
 
