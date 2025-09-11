@@ -1,9 +1,10 @@
-# video-search-similarity
+# **video-search-similarity**
 
 This project was developed as part of a research internship at Politehnica University of Timișoara in the field of computer vision.
 Its goal is to detect and retrieve video patterns of similarity in ocean, river, and stream footage.
 
-The application enables video search by similarity using **EfficientNet-B4 embeddings**.
+The application enables video search by similarity using **EfficientNet-B4 embeddings** and the **cosine similarity** method for comparison.
+A **ChromaDB vector database** is used to store and query embeddings efficiently.
 The frontend is built with **Next.js** and **MUI**, while the backend is implemented in **Python (FastAPI)**.
 
 ---
@@ -34,13 +35,6 @@ Example folder structure:
     ├── boat
     ├── cliff_water
     ├── dirty_water
-    ├── grass
-    ├── high_grass
-    ├── human
-    ├── little_rock_in_water
-    ├── mountain_and_water
-    ├── rock_in_water
-    ├── tree_in_back
     └── water_tree_reflect
 ```
 
@@ -91,22 +85,9 @@ For testing purposes, I used videos with relatively distinct content:
 ![Third test](public/test3.png)
 
 ---
-
-### Why is EfficientNet a good choice ?
-
-EfficientNet is a good option because it gives a balance between accuracy and efficiency.
-It was designed to be more optimized than older models like ResNet or Inception, by using a special scaling method that adjusts the network’s depth, width, and input resolution at the same time. This means it can reach high performance while still being relatively lightweight.
-
-For this project, the goal is not to classify images directly, but to generate embeddings that represent them well. EfficientNet provides embeddings that are both rich and compact, which makes it easier to compare videos and measure similarity. It also runs faster and uses less memory than many other deep networks, which is important when working with a lot of video data.
-
-Other models that could also be used include:
-- ResNet
-- Inception
-- MobileNet
-- Vision Transformers (ViT, Swin Transformer, DeiT)
-- CLIP
-
 ---
+
+## **Explanations and comparisons**
 
 ### What is an embedding?
 
@@ -114,10 +95,6 @@ An embedding is basically a way to turn a complex piece of data, like an image o
 Instead of storing all the raw pixels (which would be huge and not very useful for comparison), a deep learning model like EfficientNet processes the frame and outputs a feature vector. This vector is called an **embedding**.
 
 You can think of it as a kind of "summary" of the image: it keeps the most important information about what is in the frame, but in a compact numerical form. Two images that look similar to humans will usually have embeddings that are close to each other in this vector space.
-
----
-
-### What information is inside the embedding ?
 
 The embedding does not directly store things like “this is water” or “this is a rock” in plain text. Instead, it encodes **patterns and visual properties** that the neural network has learned to recognize. Here are some of the main aspects that are captured in the vector:
 
@@ -140,10 +117,10 @@ The embedding does not directly store things like “this is water” or “this
 5. **Contextual cues**
    - Sometimes the “feeling” of a scene is captured: a calm blue ocean vs. a stormy grey sea will produce different embeddings because of the global combination of colors, textures, and shapes.
 
-### Why is this useful for video similarity ?
-
 When you compare two embeddings, you’re basically comparing these abstract features.
 If two videos share similar colors, textures, objects, and patterns, their embeddings will be close to each other in the vector space.
 That’s why you can measure similarity with something like **cosine similarity** or **Euclidean distance** between embeddings: smaller distance = more similar videos.
 
 So, in short, the embedding is a numerical fingerprint of each video frame. By looking at these fingerprints instead of raw pixels, the application can quickly figure out which videos are most alike.
+
+---
