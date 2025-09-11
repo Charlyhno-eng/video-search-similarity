@@ -218,6 +218,16 @@ It is often used in text and biological sequence comparison.
 
 ### Why I used EfficientNet ?
 
+| Category                  | Model / Architecture          | Typical Enterprise Use                                  | Strengths                                       | Weaknesses                                                             |
+| ------------------------- | ----------------------------- | ------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| **Classic CNNs**          | ResNet, VGG, Inception        | Embedding extraction for short to medium videos         | Stable, robust, well-documented                 | Heavy, may require GPUs for large datasets                             |
+| **Lightweight models**    | MobileNet, EfficientNet       | Web or mobile applications, rapid prototyping           | Lightweight, fast, easy to deploy               | Slightly lower accuracy than heavy models                              |
+| **Vision Transformers**   | TimeSformer, VideoSwin, ViViT | Advanced temporal and semantic similarity search        | Excellent accuracy, captures video dynamics     | Very heavy, requires powerful GPU, hard to deploy in browser           |
+| **Multimodal / Semantic** | CLIP, OpenCLIP                | Semantic search (text ↔ video), advanced recommendation | Very powerful for understanding overall content | Computationally expensive, needs GPU, challenging for very long videos |
+| **3D CNNs**               | C3D, I3D                      | Action or motion analysis, surveillance                 | Captures temporal dynamics of videos            | Very heavy, typically requires GPU servers                             |
+
+EfficientNet is known for its lightweight and efficient performance, making it suitable for applications requiring fast execution, particularly in web browsers. It offers a good balance between accuracy and performance, particularly for short videos. Comparative studies, such as the one published in the International Journal of Scientific Research in Engineering and Management, highlight its efficiency in terms of computation and accuracy.
+
 ---
 
 ### Why I used ChromaDB ?
