@@ -2,7 +2,7 @@
 
 import { VideoSelector } from "../components/VideoSelector/VideoSelector";
 import { SimilarVideos } from "../components/SimilarVideos/SimilarVideos";
-import { Box } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import { useState } from "react";
 
 export type SimilarVideoType = {
@@ -16,18 +16,19 @@ export type SimilarVideoType = {
 export default function Home() {
   const [similarVideos, setSimilarVideos] = useState<SimilarVideoType[]>([]);
 
-  // This callback would be passed to VideoSelector to update similar images
   const handleSimilarVideos = (images: SimilarVideoType[]) => {
     setSimilarVideos(images);
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh", p: 2.5 }}>
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
+      <Box sx={{ flex: 0.4, display: "flex", justifyContent: "center", alignItems: "flex-start", p: 2.5 }}>
         <VideoSelector onSimilarVideos={handleSimilarVideos} />
       </Box>
 
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start", pl: 4 }}>
+      <Divider orientation="vertical" flexItem sx={{ bgcolor: "grey.500", borderRightWidth: 0.5 }} />
+
+      <Box sx={{ flex: 0.6, display: "flex", justifyContent: "center", alignItems: "flex-start", p: 2.5 }}>
         <SimilarVideos videos={similarVideos} />
       </Box>
     </Box>
