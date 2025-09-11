@@ -10,6 +10,7 @@ The frontend is built with **Next.js** and **MUI**, while the backend is impleme
 - If you would like to **install the application**, click [here](#intallation).
 - If you want to **see a demonstration**, click [here](#demonstration).
 - If you are interested in **explanations and technology choices**, click [here](#explanations-and-comparisons).
+- If you want to **know the sources I used**, click [here](#my-resources).
 
 ---
 
@@ -127,3 +128,100 @@ That’s why you can measure similarity with something like **cosine similarity*
 So, in short, the embedding is a numerical fingerprint of each video frame. By looking at these fingerprints instead of raw pixels, the application can quickly figure out which videos are most alike.
 
 ---
+
+### Calculation of distance between vectors
+
+#### **Euclidean Distance (L2 norm)**
+
+The Euclidean distance is the most common way to measure similarity between vectors.
+It calculates the straight-line distance between two points in vector space:
+
+$$
+d(x,y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+$$
+
+It considers both magnitude and direction of the vectors, making it intuitive but sensitive to scale.
+
+#### **Cosine Similarity / Cosine Distance**
+
+Cosine similarity measures the angle between two vectors, ignoring their magnitude.
+It is often converted into a distance:
+
+$$
+\text{cosine similarity}(x,y) = \frac{x \cdot y}{\|x\| \, \|y\|}, \quad
+d(x,y) = 1 - \text{cosine similarity}(x,y)
+$$
+
+This metric is widely used in embeddings since it focuses on orientation rather than vector length.
+
+#### **Hamming Distance**
+
+The Hamming distance counts the number of positions at which two vectors (or strings) differ:
+
+$$
+d(x,y) = \sum_{i=1}^{n} [x_i \neq y_i]
+$$
+
+It is mainly used for binary vectors or categorical data.
+
+#### **Manhattan Distance (L1 norm)**
+
+Also known as the "taxicab" distance, it sums the absolute differences between coordinates:
+
+$$
+d(x,y) = \sum_{i=1}^{n} |x_i - y_i|
+$$
+
+It is less sensitive to outliers than Euclidean distance.
+
+#### **Chebyshev Distance (L∞ norm)**
+
+Chebyshev distance only considers the largest difference across any dimension:
+
+$$
+d(x,y) = \max_i |x_i - y_i|
+$$
+
+It is useful when the greatest single difference dominates similarity.
+
+#### **Minkowski Distance**
+
+A generalization of L1 and L2 distances, parameterized by $p$:
+
+$$
+d(x,y) = \left( \sum_{i=1}^{n} |x_i - y_i|^p \right)^{\frac{1}{p}}
+$$
+
+For $p=1$ it becomes Manhattan distance, and for $p=2$ it becomes Euclidean distance.
+
+#### **Jaccard Distance**
+
+The Jaccard distance compares two sets by measuring their overlap:
+
+$$
+d(A,B) = 1 - \frac{|A \cap B|}{|A \cup B|}
+$$
+
+It is useful for binary data or sets of items.
+
+#### **Sørensen–Dice Distance**
+
+A variation of Jaccard, the Dice distance doubles the weight of the intersection:
+
+$$
+d(A,B) = 1 - \frac{2 |A \cap B|}{|A| + |B|}
+$$
+
+It is often used in text and biological sequence comparison.
+
+---
+
+### Why I used EfficientNet ?
+
+---
+
+### Why I used ChromaDB ?
+
+---
+
+## My resources
