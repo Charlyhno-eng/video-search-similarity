@@ -133,7 +133,7 @@ So, in short, the embedding is a numerical fingerprint of each video frame. By l
 
 - #### **Euclidean Distance (L2 norm)**
 
-The Euclidean distance is the most common way to measure similarity between vectors.
+Euclidean distance is one of the most common methods for measuring similarity between vectors.
 It calculates the straight-line distance between two points in vector space:
 
 $$
@@ -225,3 +225,7 @@ It is often used in text and biological sequence comparison.
 ---
 
 ## My resources
+
+- [1]. TileDB Academy, “Distance Metrics” _Web site_. [Online]. Available: [https://cloud.tiledb.com/academy/structure/ai-ml/vector-search/foundation/key-concepts/distance-metrics/](https://cloud.tiledb.com/academy/structure/ai-ml/vector-search/foundation/key-concepts/distance-metrics/)
+
+- [2]. LeMarson TV, “Les bases de données vectorielles” _Youtube video_, 2025. [Online]. Available: [https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6](https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6)
