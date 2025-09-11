@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Card, CardMedia, CardContent, Typography, Grid } from "@mui/material";
 import { SimilarVideoType } from "@/app/page"
-import { formatFolderName } from "@/utils/formatFolderName"
+import { formatFolderName } from "@/core/formatFolderName"
 
 export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
   if (videos.length === 0) {

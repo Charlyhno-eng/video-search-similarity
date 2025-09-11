@@ -7,7 +7,7 @@
  * @returns A formatted string with spaces and capitalized first letter (e.g., "Water tree reflect")
  */
 export function formatFolderName(folderName: string): string {
-  if (!folderName) return "Root"; // fallback for empty strings
+  if (!folderName) return "Root";
   // Replace underscores with spaces
   let formatted = folderName.replace(/_/g, " ");
   // Capitalize first letter
