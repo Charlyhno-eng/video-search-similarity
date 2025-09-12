@@ -16,7 +16,7 @@ export const aboutApplication = (
       input video with a database using embeddings. The goal is to quickly find the most
       visually similar videos in a simple and intuitive way.
     </Typography>
-    <Divider sx={{ my: 3, bgcolor: "grey.700" }} />
+    <Divider sx={{ my: 3, borderColor: "rgba(255, 255, 255, 0.2)" }} />
   </>
 );
 
@@ -33,7 +33,7 @@ export const technologiesUsed = (
       <Typography><br />If you want more information on the choice of technologies and see the comparisons and usable alternatives, read the README.md on Github.</Typography>
     </Stack>
 
-    <Divider sx={{ my: 3, bgcolor: "grey.700" }} />
+    <Divider sx={{ my: 3, borderColor: "rgba(255, 255, 255, 0.2)" }} />
   </>
 );
 

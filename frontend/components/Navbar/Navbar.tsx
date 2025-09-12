@@ -54,7 +54,7 @@ export default function Navbar() {
         </Box>
       </Toolbar>
 
-      <Divider sx={{ bgcolor: "grey.500", height: 1 }} />
+      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
     </AppBar>
   );
 }

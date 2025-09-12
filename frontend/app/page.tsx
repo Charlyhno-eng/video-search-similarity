@@ -26,7 +26,7 @@ export default function Home() {
         <VideoSelector onSimilarVideos={handleSimilarVideos} />
       </Box>
 
-      <Divider orientation="vertical" flexItem sx={{ bgcolor: "grey.500", borderRightWidth: 0.5 }} />
+      <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
       <Box sx={{ flex: 0.6, display: "flex", justifyContent: "center", alignItems: "flex-start", p: 2.5 }}>
         <SimilarVideos videos={similarVideos} />
