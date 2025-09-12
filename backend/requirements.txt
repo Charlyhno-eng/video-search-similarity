@@ -8,3 +8,4 @@ efficientnet_pytorch
 scikit-learn
 numpy
 scikit-learn
+chromadb

@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import cv2
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
@@ -13,7 +13,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
-# Enable CORS for frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,19 +21,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Define paths ---
+# --- Paths ---
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEOS_DIR = os.path.join(ROOT_DIR, "videos_database")
 EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "embeddings")
 THUMBNAILS_DIR = os.path.join(ROOT_DIR, "thumbnails")
 
+os.makedirs(VIDEOS_DIR, exist_ok=True)
+os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
+os.makedirs(THUMBNAILS_DIR, exist_ok=True)
+
 app.mount("/videos_database", StaticFiles(directory=VIDEOS_DIR), name="videos_database")
 app.mount("/thumbnails", StaticFiles(directory=THUMBNAILS_DIR), name="thumbnails")
 
+VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov"]
+BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
+BASE_THUMB_URL = "http://localhost:8000/thumbnails/"
+
+# --- Model ---
 model = EfficientNet.from_pretrained('efficientnet-b4')
 model.eval()
-
-# Image preprocessing
 transform = transforms.Compose([
     transforms.Resize(384),
     transforms.CenterCrop(380),
@@ -42,113 +48,70 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov"]
-
-# --- Extract frames from uploaded video bytes ---
+# --- Helpers ---
 def extract_frames_from_bytes(video_bytes, frame_rate=1):
     tmp_file = "temp_video.mp4"
-    # Save uploaded video temporarily to disk
     with open(tmp_file, "wb") as f:
         f.write(video_bytes)
-
     cap = cv2.VideoCapture(tmp_file)
     fps = cap.get(cv2.CAP_PROP_FPS)
-    interval = max(1, int(fps * frame_rate))  # extract frames at the given rate
-    frames = []
-    frame_idx = 0
-
+    interval = max(1, int(fps * frame_rate))
+    frames, frame_idx = [], 0
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         if frame_idx % interval == 0:
-            # Convert BGR (OpenCV default) to RGB and store as PIL image
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(Image.fromarray(frame_rgb))
+            frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
         frame_idx += 1
-
     cap.release()
-    os.remove(tmp_file)  # clean up temporary file
+    os.remove(tmp_file)
     return frames
 
-# --- Extract EfficientNet embeddings from video frames ---
 def extract_video_embedding_from_bytes(video_bytes, frame_rate=1):
-    frames = extract_frames_from_bytes(video_bytes, frame_rate=frame_rate)
+    frames = extract_frames_from_bytes(video_bytes, frame_rate)
     embeddings = []
-
     for img in frames:
-        img_tensor = transform(img).unsqueeze(0)  # add batch dimension
+        img_tensor = transform(img).unsqueeze(0)
         with torch.no_grad():
-            # Extract features from EfficientNet
             features = model.extract_features(img_tensor)
-            # Global average pooling to get single vector per frame
             pooled = F.adaptive_avg_pool2d(features, 1)
-            embedding = pooled.view(pooled.size(0), -1)
-            embeddings.append(embedding.squeeze(0).numpy())
-
-    if len(embeddings) == 0:
+            embeddings.append(pooled.view(pooled.size(0), -1).squeeze(0).numpy())
+    if not embeddings:
         return None
-
-    # Average embeddings across all frames to get a single video embedding
     return np.mean(embeddings, axis=0)
 
-# --- Load all embeddings from disk (including subfolders) ---
+# --- Load existing embeddings ---
 video_embeddings = {}
 for root, _, files in os.walk(EMBEDDINGS_DIR):
     for f in files:
         if f.endswith('.npy'):
             full_path = os.path.join(root, f)
-            rel_path = os.path.relpath(full_path, EMBEDDINGS_DIR)  # store relative path
+            rel_path = os.path.relpath(full_path, EMBEDDINGS_DIR)
             video_embeddings[rel_path] = np.load(full_path)
 
-# --- Compute cosine similarity to find top-k similar videos ---
 def find_similar_videos(query_embedding, top_k=6):
-    similarities = []
-    for rel_path, db_embedding in video_embeddings.items():
-        # compute cosine similarity between query and database embedding
-        sim = cosine_similarity(
-            query_embedding.reshape(1, -1),
-            db_embedding.reshape(1, -1)
-        )[0][0]
-        similarities.append((rel_path, sim))
-    # sort descending by similarity
-    similarities.sort(key=lambda x: x[1], reverse=True)
-    return similarities[:top_k]
+    sims = [(rel_path, cosine_similarity(query_embedding.reshape(1, -1), db_emb.reshape(1, -1))[0][0])
+            for rel_path, db_emb in video_embeddings.items()]
+    sims.sort(key=lambda x: x[1], reverse=True)
+    return sims[:top_k]
 
-BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
-BASE_THUMB_URL = "http://localhost:8000/thumbnails/"
-
-# --- FastAPI endpoint to upload a video and find similar ones ---
+# --- Endpoints ---
 @app.post("/upload-video/")
 async def upload_video(file: UploadFile = File(...)):
     contents = await file.read()
     embedding = extract_video_embedding_from_bytes(contents, frame_rate=1)
-
     if embedding is None:
-        return {"error": "No frames could be extracted from the video."}
+        return {"error": "No frames could be extracted"}
 
     similar_videos = find_similar_videos(embedding, top_k=6)
-
     results = []
     for rel_path, sim in similar_videos:
-        # Remove '.npy' extension to get original video name
         video_name = rel_path[:-4]
-
-        # URL for the video
         video_url = BASE_VIDEO_URL + video_name.replace("\\", "/")
-
-        # Remove video file extension for thumbnail URL
-        filename_no_ext = os.path.basename(video_name)
-        for ext in VIDEO_EXTENSIONS:
-            if filename_no_ext.lower().endswith(ext):
-                filename_no_ext = filename_no_ext[:-len(ext)]
-                break
-
+        filename_no_ext = os.path.splitext(os.path.basename(video_name))[0]
         subfolder = os.path.dirname(video_name).replace("\\", "/")
-
-        # Build thumbnail URL, handle subfolder or root
         thumbnail_url = f"{BASE_THUMB_URL}{subfolder}/{filename_no_ext}.jpg" if subfolder else f"{BASE_THUMB_URL}{filename_no_ext}.jpg"
-
         results.append({
             "filename": os.path.basename(video_name),
             "similarity": float(sim),
@@ -157,7 +120,6 @@ async def upload_video(file: UploadFile = File(...)):
             "subfolder": subfolder or "root"
         })
 
-    # Thumbnail URL for uploaded video (optional, may not exist)
     uploaded_base_name, _ = os.path.splitext(file.filename)
     uploaded_thumbnail_url = f"{BASE_THUMB_URL}{uploaded_base_name}.jpg"
 
@@ -167,4 +129,65 @@ async def upload_video(file: UploadFile = File(...)):
         "thumbnail_url": uploaded_thumbnail_url,
         "similar_videos": results,
         "message": "Video received, embedding extracted, similar videos found"
+    }
+
+@app.get("/get-classes/")
+async def get_classes():
+    try:
+        classes = [d for d in os.listdir(VIDEOS_DIR) if os.path.isdir(os.path.join(VIDEOS_DIR, d))]
+        return {"classes": classes}
+    except Exception as e:
+        return {"classes": [], "error": str(e)}
+
+@app.post("/create-class/")
+async def create_class(className: str = Body(..., embed=True)):
+    formatting_class_name = "".join([c.lower() if c.isalnum() else "_" for c in className])
+    video_dir = os.path.join(VIDEOS_DIR, formatting_class_name)
+    emb_dir = os.path.join(EMBEDDINGS_DIR, formatting_class_name)
+    thumb_dir = os.path.join(THUMBNAILS_DIR, formatting_class_name)
+
+    try:
+        os.makedirs(video_dir, exist_ok=True)
+        os.makedirs(emb_dir, exist_ok=True)
+        os.makedirs(thumb_dir, exist_ok=True)
+        return {"message": f"Class '{formatting_class_name}' created successfully"}
+    except Exception as e:
+        return {"message": str(e)}
+
+@app.post("/add-video/")
+async def add_video(file: UploadFile = File(...), label: str = Form(...)):
+    video_subdir = os.path.join(VIDEOS_DIR, label)
+    emb_subdir = os.path.join(EMBEDDINGS_DIR, label)
+    thumb_subdir = os.path.join(THUMBNAILS_DIR, label)
+    os.makedirs(video_subdir, exist_ok=True)
+    os.makedirs(emb_subdir, exist_ok=True)
+    os.makedirs(thumb_subdir, exist_ok=True)
+
+    video_path = os.path.join(video_subdir, file.filename)
+    contents = await file.read()
+    with open(video_path, "wb") as f:
+        f.write(contents)
+
+    embedding = extract_video_embedding_from_bytes(contents, frame_rate=1)
+    if embedding is None:
+        return {"error": "Impossible to extract embedding"}
+
+    emb_path = os.path.join(emb_subdir, file.filename + ".npy")
+    np.save(emb_path, embedding)
+
+    thumb_path = os.path.join(thumb_subdir, os.path.splitext(file.filename)[0] + ".jpg")
+    cap = cv2.VideoCapture(video_path)
+    ret, frame = cap.read()
+    cap.release()
+    if ret:
+        cv2.imwrite(thumb_path, frame)
+
+    rel_path = os.path.relpath(emb_path, EMBEDDINGS_DIR)
+    video_embeddings[rel_path] = embedding
+
+    return {
+        "message": f"Video {file.filename} added to class {label}",
+        "video_path": video_path,
+        "embedding_path": emb_path,
+        "thumbnail_path": thumb_path
     }

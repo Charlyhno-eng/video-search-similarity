@@ -3,7 +3,8 @@
 import React, { useState, useCallback } from "react";
 import { Button, Box, Card, CardContent, CardMedia, Typography, CircularProgress } from "@mui/material";
 import { Movie } from "@mui/icons-material";
-import { SimilarVideoType } from "../../app/page";
+import { SimilarVideoType } from "@/app/page";
+import { API_BASE_URL } from "@/shared/constants"
 
 type BackendResponse = {
   filename: string;
@@ -20,7 +21,7 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch("http://127.0.0.1:8000/upload-video/", {
+    const response = await fetch(`${API_BASE_URL}/upload-video/`, {
       method: "POST", body: formData
     });
 
@@ -72,9 +73,7 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
       </label>
 
       {loading && (
-        <Box sx={{ mt: 4 }}>
-          <CircularProgress size="3rem" />
-        </Box>
+        <Box sx={{ mt: 4 }}><CircularProgress size="3rem" /></Box>
       )}
 
       {!loading &&
@@ -83,12 +82,8 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
           <Card sx={{ width: "100%", mt: 4 }}>
             <CardMedia component="img" height="350" image={backendResponse.similar_videos[0].thumbnail_url} alt={backendResponse.similar_videos[0].filename} />
             <CardContent>
-              <Typography variant="subtitle1" noWrap>
-                {backendResponse.filename}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mt={1}>
-                Backend: {backendResponse.message}
-              </Typography>
+              <Typography variant="subtitle1" noWrap>{backendResponse.filename}</Typography>
+              <Typography variant="body2" color="text.secondary" mt={1}>Backend: {backendResponse.message}</Typography>
             </CardContent>
           </Card>
         )}
