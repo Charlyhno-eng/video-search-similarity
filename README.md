@@ -83,11 +83,11 @@ For testing purposes, I used videos with relatively distinct content:
 - a video of rocks in turquoise water,
 - and a video of a forest by a river.
 
-![First test](public/test1.png)
+![First example](public/example1.png)
 
-![Second test](public/test2.png)
+![Second example](public/example2.png)
 
-![Third test](public/test3.png)
+![Third example](public/example3.png)
 
 ---
 
