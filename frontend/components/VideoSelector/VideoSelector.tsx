@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Button, Box, Card, CardContent, CardMedia, Typography, CircularProgress } from "@mui/material";
+import { Box, Card, CardContent, CardMedia, Typography, CircularProgress } from "@mui/material";
+import { CustomButton } from "@/components/CustomButton/CustomButton";
 import { Movie } from "@mui/icons-material";
 import { SimilarVideoType } from "@/app/page";
 import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants"
@@ -61,15 +62,12 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10, width: "100%" }}>
       <input accept={VIDEO_EXTENSIONS} style={{ display: "none" }} id="contained-button-file" type="file" onChange={handleVideoChange} />
       <label htmlFor="contained-button-file">
-        <Button
-          variant="contained"
+        <CustomButton
+          label={loading ? "Uploading..." : "Select a video"}
           component="span"
           startIcon={<Movie />}
-          sx={{ px: 3, py: 1, "&.Mui-disabled": { backgroundColor: "#1976d2", color: "#fff", opacity: 0.7 } }}
           disabled={loading}
-        >
-          {loading ? "Uploading..." : "Select a video"}
-        </Button>
+        />
       </label>
 
       {loading && (

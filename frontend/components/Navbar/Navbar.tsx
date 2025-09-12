@@ -18,7 +18,6 @@ export default function Navbar() {
       <Toolbar sx={{ display: "flex", alignItems: "center" }}>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-          <Image src="/icon.png" alt="Icon" width={40} height={40} />
           <Link component={NextLink} href="/" underline="none" sx={{ fontWeight: "bold", letterSpacing: "1px", lineHeight: 1 }}>
             <span style={{ color: "#1976d2", fontSize: "1.8rem" }}>V</span>
             <span style={{ color: "white", fontSize: "1rem" }}>ideo</span>
@@ -30,7 +29,7 @@ export default function Navbar() {
         </Box>
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <Image src="/logo_politehnica.png" alt="Logo Politehnica" width={250} height={50} />
+          <Image src="/logo_university.png" alt="Logo Politehnica" width={250} height={50} />
         </Box>
 
         <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end", gap: 3 }}>

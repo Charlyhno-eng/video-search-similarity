@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
-import { formatClassName } from "@/core/formatClassName"
-import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants"
+import { Box, Typography, TextField, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { formatClassName } from "@/core/formatClassName";
+import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants";
+import { CustomButton } from "@/components/CustomButton/CustomButton";
 
 export default function Edit() {
   const [className, setClassName] = useState("");
@@ -21,7 +22,6 @@ export default function Edit() {
     };
     fetchClasses();
   }, []);
-
 
   const handleCreateClass = async () => {
     if (!className.trim()) {
@@ -65,7 +65,8 @@ export default function Edit() {
 
     try {
       const res = await fetch(`${API_BASE_URL}/add-video/`, {
-        method: "POST", body: formData
+        method: "POST",
+        body: formData
       });
 
       const data = await res.json();
@@ -82,7 +83,7 @@ export default function Edit() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", p: 4, backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", p: 4, minHeight: "100vh" }}>
       <Typography variant="h4" mb={2}>Manage Classes</Typography>
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         <TextField
@@ -91,23 +92,23 @@ export default function Edit() {
           onChange={(e) => setClassName(e.target.value)}
           sx={{ input: { color: 'white' }, label: { color: 'rgba(255,255,255,0.7)' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } } }}
         />
-        <Button variant="contained" onClick={handleCreateClass}>Create Class</Button>
+        <CustomButton label="Create Class" onClick={handleCreateClass} />
       </Box>
 
       <Typography variant="h4" mb={2} mt={4}>Upload Video</Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2, maxWidth: 400 }}>
-        <FormControl
-          fullWidth
-          sx={{ input: { color: 'white' }, label: { color: 'rgba(255,255,255,0.7)' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } } }}>
+        <FormControl fullWidth sx={{ input: { color: 'white' }, label: { color: 'rgba(255,255,255,0.7)' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } } }}>
           <InputLabel sx={{ color: "white" }}>Select Class</InputLabel>
           <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} displayEmpty sx={{ color: "white" }}>
-            {classes.map((cls) => ( <MenuItem key={cls} value={cls}>{formatClassName(cls)}</MenuItem> ))}
+            {classes.map((cls) => (
+              <MenuItem key={cls} value={cls}>{formatClassName(cls)}</MenuItem>
+            ))}
           </Select>
         </FormControl>
 
         <input type="file" accept={VIDEO_EXTENSIONS} onChange={(e) => e.target.files && setVideoFile(e.target.files[0])} style={{ color: "white" }} />
 
-        <Button variant="contained" onClick={handleVideoUpload}>Upload Video</Button>
+        <CustomButton label="Upload Video" onClick={handleVideoUpload} />
       </Box>
 
       {message && <Typography color="primary">{message}</Typography>}

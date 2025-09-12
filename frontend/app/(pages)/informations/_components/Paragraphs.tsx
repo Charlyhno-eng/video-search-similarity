@@ -30,6 +30,7 @@ export const technologiesUsed = (
           <Typography>- {tech.name} ({tech.description})</Typography>
         </Link>
       ))}
+      <Typography><br />If you want more information on the choice of technologies and see the comparisons and usable alternatives, read the README.md on Github.</Typography>
     </Stack>
 
     <Divider sx={{ my: 3, bgcolor: "grey.700" }} />

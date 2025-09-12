@@ -6,7 +6,7 @@ import { aboutApplication, technologiesUsed, aboutAuthor } from "./_components/P
 
 export default function Informations() {
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start", minHeight: "100vh", p: 4, bgcolor: "#14151d", color: "#ededed" }}>
+    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start", minHeight: "100vh", p: 4 }}>
       <Box sx={{ maxWidth: 800, width: "100%" }}>
         <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
           About{" "}
