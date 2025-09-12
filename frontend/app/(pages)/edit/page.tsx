@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { formatClassName } from "@/core/formatClassName"
-import { API_BASE_URL } from "@/shared/constants"
+import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants"
 
 export default function Edit() {
   const [className, setClassName] = useState("");
@@ -16,13 +16,12 @@ export default function Edit() {
     const fetchClasses = async () => {
       const res = await fetch(`${API_BASE_URL}/get-classes/`);
       const data = await res.json();
-      if (Array.isArray(data.classes)) {
-        setClasses(data.classes);
-        if (data.classes.length > 0) setSelectedClass(data.classes[0]);
-      }
+
+      if (Array.isArray(data.classes)) setClasses(data.classes.sort((a: string, b: string) => a.localeCompare(b)));
     };
     fetchClasses();
   }, []);
+
 
   const handleCreateClass = async () => {
     if (!className.trim()) {
@@ -101,14 +100,12 @@ export default function Edit() {
           fullWidth
           sx={{ input: { color: 'white' }, label: { color: 'rgba(255,255,255,0.7)' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } } }}>
           <InputLabel sx={{ color: "white" }}>Select Class</InputLabel>
-          <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} sx={{ color: "white" }}>
-            {classes.map((cls) => (
-              <MenuItem key={cls} value={cls}>{cls}</MenuItem>
-            ))}
+          <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} displayEmpty sx={{ color: "white" }}>
+            {classes.map((cls) => ( <MenuItem key={cls} value={cls}>{formatClassName(cls)}</MenuItem> ))}
           </Select>
         </FormControl>
 
-        <input type="file" accept=".mp4,.avi,.mov" onChange={(e) => e.target.files && setVideoFile(e.target.files[0])} style={{ color: "white" }} />
+        <input type="file" accept={VIDEO_EXTENSIONS} onChange={(e) => e.target.files && setVideoFile(e.target.files[0])} style={{ color: "white" }} />
 
         <Button variant="contained" onClick={handleVideoUpload}>Upload Video</Button>
       </Box>

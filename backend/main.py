@@ -34,7 +34,7 @@ os.makedirs(THUMBNAILS_DIR, exist_ok=True)
 app.mount("/videos_database", StaticFiles(directory=VIDEOS_DIR), name="videos_database")
 app.mount("/thumbnails", StaticFiles(directory=THUMBNAILS_DIR), name="thumbnails")
 
-VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov"]
+VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", "webm"]
 BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
 BASE_THUMB_URL = "http://localhost:8000/thumbnails/"
 

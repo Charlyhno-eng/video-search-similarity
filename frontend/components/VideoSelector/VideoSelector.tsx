@@ -4,7 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Button, Box, Card, CardContent, CardMedia, Typography, CircularProgress } from "@mui/material";
 import { Movie } from "@mui/icons-material";
 import { SimilarVideoType } from "@/app/page";
-import { API_BASE_URL } from "@/shared/constants"
+import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants"
 
 type BackendResponse = {
   filename: string;
@@ -59,7 +59,7 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10, width: "100%" }}>
-      <input accept="video/mp4,video/quicktime,video/x-msvideo" style={{ display: "none" }} id="contained-button-file" type="file" onChange={handleVideoChange} />
+      <input accept={VIDEO_EXTENSIONS} style={{ display: "none" }} id="contained-button-file" type="file" onChange={handleVideoChange} />
       <label htmlFor="contained-button-file">
         <Button
           variant="contained"
