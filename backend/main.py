@@ -23,20 +23,20 @@ app.add_middleware(
 
 # --- Paths ---
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-VIDEOS_DIR = os.path.join(ROOT_DIR, "videos_database")
-EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "embeddings")
-THUMBNAILS_DIR = os.path.join(ROOT_DIR, "thumbnails")
+VIDEOS_DIR = os.path.join(ROOT_DIR, "db_videos")
+EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "db_embeddings")
+THUMBNAILS_DIR = os.path.join(ROOT_DIR, "db_thumbnails")
 
 os.makedirs(VIDEOS_DIR, exist_ok=True)
 os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
 os.makedirs(THUMBNAILS_DIR, exist_ok=True)
 
-app.mount("/videos_database", StaticFiles(directory=VIDEOS_DIR), name="videos_database")
-app.mount("/thumbnails", StaticFiles(directory=THUMBNAILS_DIR), name="thumbnails")
+app.mount("/db_videos", StaticFiles(directory=VIDEOS_DIR), name="db_videos")
+app.mount("/db_thumbnails", StaticFiles(directory=THUMBNAILS_DIR), name="db_thumbnails")
 
 VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", "webm"]
-BASE_VIDEO_URL = "http://localhost:8000/videos_database/"
-BASE_THUMB_URL = "http://localhost:8000/thumbnails/"
+BASE_VIDEO_URL = "http://localhost:8000/db_videos/"
+BASE_THUMB_URL = "http://localhost:8000/db_thumbnails/"
 
 # --- Model ---
 model = EfficientNet.from_pretrained('efficientnet-b4')

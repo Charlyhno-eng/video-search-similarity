@@ -12,9 +12,9 @@ images/
 .DS_Store
 
 # Your videos database
-videos_database/
-embeddings/
-thumbnails/
+db_videos/
+db_embeddings/
+db_thumbnails/
 
 # Environment variables
 .env

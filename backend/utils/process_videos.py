@@ -8,8 +8,8 @@ import torchvision.transforms as transforms
 import torch.nn.functional as F
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VIDEOS_DIR = os.path.join(ROOT_DIR, "videos_database")
-EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "embeddings")
+VIDEOS_DIR = os.path.join(ROOT_DIR, "db_videos")
+EMBEDDINGS_DIR = os.path.join(ROOT_DIR, "db_embeddings")
 THUMBNAILS_DIR = os.path.join(ROOT_DIR, "thumbnails")
 
 os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
