@@ -11,10 +11,11 @@ embeddings/
 images/
 .DS_Store
 
-# Your videos database
+# Videos database
 db_videos/
 db_embeddings/
 db_thumbnails/
+chroma_db/
 
 # Environment variables
 .env
