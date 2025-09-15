@@ -1,7 +1,7 @@
 "use client";
 
-import { VideoSelector } from "../components/VideoSelector/VideoSelector";
-import { SimilarVideos } from "../components/SimilarVideos/SimilarVideos";
+import { VideoSelector } from "./_components/VideoSelector/VideoSelector";
+import { SimilarVideos } from "./_components/SimilarVideos/SimilarVideos";
 import { Box, Divider } from "@mui/material";
 import { useState } from "react";
 

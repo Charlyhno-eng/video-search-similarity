@@ -2,16 +2,19 @@ import os
 import numpy as np
 import chromadb
 
-# 1. Initialize Chroma client (persistent, stored locally)
-client = chromadb.PersistentClient(path="./chroma_db")
-collection = client.get_or_create_collection(name="videos")
+# --- ChromaDB ---
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+collection = chroma_client.get_or_create_collection(
+    name="videos",
+    metadata={"hnsw:space": "cosine"}
+)
 
-# 2. Source folders
+# --- Source folders ---
 DB_EMBEDDINGS = "db_embeddings"
 DB_VIDEOS = "db_videos"
 DB_THUMBNAILS = "db_thumbnails"
 
-# 3. Possible video extensions
+# --- Video extensions ---
 VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
 
 def find_matching_video(base_path, base_name, extensions):
@@ -25,7 +28,7 @@ def find_matching_video(base_path, base_name, extensions):
             return candidate
     return None
 
-# 4. Migration
+# --- Migration ---
 for class_name in os.listdir(DB_EMBEDDINGS):
     class_path = os.path.join(DB_EMBEDDINGS, class_name)
     if not os.path.isdir(class_path):
@@ -35,7 +38,7 @@ for class_name in os.listdir(DB_EMBEDDINGS):
         if not file.endswith(".npy"):
             continue
 
-        # Clean base name: remove ".npy" and possible video extension before it
+        # Clean base name
         base_name = file.replace(".npy", "")
         for ext in VIDEO_EXTENSIONS:
             if base_name.endswith(ext):
@@ -49,11 +52,15 @@ for class_name in os.listdir(DB_EMBEDDINGS):
         thumbnail_path = os.path.join(DB_THUMBNAILS, class_name, base_name + ".jpg")
 
         if video_path is None or not os.path.exists(thumbnail_path):
-            print(f"⚠️ Skipping {embedding_path}: no matching video or thumbnail found.")
+            print(f"Skipping {embedding_path}: no matching video or thumbnail found.")
             continue
 
-        # Load embedding
+        # Load embedding and normalize
         embedding = np.load(embedding_path)
+        if np.linalg.norm(embedding) == 0:
+            print(f"Skipping {embedding_path}: embedding norm is zero.")
+            continue
+        embedding = embedding / np.linalg.norm(embedding)
 
         # Unique ID for Chroma
         video_id = f"{class_name}_{base_name}"
