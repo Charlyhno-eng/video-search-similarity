@@ -240,6 +240,21 @@ EfficientNet is known for its lightweight and efficient performance, making it s
 
 ### Why I used ChromaDB ?
 
+Chroma is the open-source AI application database. Chroma makes it easy to build LLM apps by making knowledge, facts, and skills pluggable for LLMs.
+
+Chroma gives you everything you need for retrieval:
+
+    Store embeddings and their metadata
+    Vector search
+    Full-text search
+    Document storage
+    Metadata filtering
+    Multi-modal retrieval
+
+Chroma runs as a server and provides Python and JavaScript/TypeScript client SDKs. Check out the Colab demo (yes, it can run in a Jupyter notebook).
+
+ChromaDB is designed for high-performance, scalable vector similarity search, making it an ideal choice for applications that rely on content-based retrieval. Whether you are working with images, videos, or text embeddings, ChromaDB allows you to efficiently store, index, and query large collections of vector data. Its intuitive API and support for persistent storage make it easy to integrate into modern applications, while its optimized search algorithms ensure fast and accurate similarity results. By using ChromaDB, developers can focus on building intelligent features—like video or image similarity search—without worrying about the complexities of managing vector indexes manually.
+
 ---
 
 ## My resources
@@ -249,3 +264,5 @@ EfficientNet is known for its lightweight and efficient performance, making it s
 - [2]. LeMarson TV, “Les bases de données vectorielles” _Youtube video_, 2025. [Online]. Available: [https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6](https://www.youtube.com/watch?v=DB1vFroa_es&list=LL&index=6)
 
 - [3]. ResearchGate, “Comparative Study of Image Classification Models Using Deep Learning: MobileNet, ResNet, and EfficientNet” _PDF_, 2025. [Online]. Available: [https://www.researchgate.net/publication/391845914_Comparative_Study_of_Image_Classification_Models_Using_Deep_Learning_MobileNet_ResNet_and_EfficientNet](https://www.researchgate.net/publication/391845914_Comparative_Study_of_Image_Classification_Models_Using_Deep_Learning_MobileNet_ResNet_and_EfficientNet)
+
+- [4]. Chroma, “Chroma is the open-source search and retrieval database for AI applications.” _Technical documentation_, 2025. [Online]. Available: [https://www.trychroma.com/](https://www.trychroma.com/)
