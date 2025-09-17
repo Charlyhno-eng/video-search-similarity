@@ -175,9 +175,6 @@ def distance_to_similarity(distance):
     """
     return float(100 * (1 / (1 + distance)))
 
-import base64
-from io import BytesIO
-
 def extract_first_frame_base64(video_bytes: bytes) -> str | None:
     """Extract the first frame of a video as a base64 encoded JPEG string."""
     tmp_file = "temp_input_video.mp4"

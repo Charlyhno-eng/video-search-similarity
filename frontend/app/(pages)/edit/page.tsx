@@ -39,7 +39,6 @@ export default function Edit() {
           <ManageClasses setClasses={setClasses} setMessage={setMessage} />
         </Paper>
 
-
         <Paper sx={{ flex: 1, p: 3, border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: 2, bgcolor: "transparent" }}>
           <Typography variant="h4" mb={2} sx={{ color: "#ffffff" }}>Upload Video</Typography>
           <UploadVideo classes={classes} setMessage={setMessage} />

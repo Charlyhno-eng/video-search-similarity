@@ -17,56 +17,30 @@ The frontend is built with **Next.js** and **MUI**, while the backend is impleme
 ## Intallation
 
 ### 1. Set up the video database
+
+Regarding the installation, you have two options. If you are on Linux Mint or a Linux with a distribution similar to Linux Mint, I have a script "installation_script.sh" at the root of the project. This script installs everything from A to Z, it installs node, python, then installs the python libraries necessary for the project and does the same for nextjs.<br />
+
+The other option is to follow these steps :
+- Clone the Github repository
+- Go to the repository:
 ```bash
-cd backend
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-mkdir videos_database
+cd video-search-similarity
 ```
-
-The application supports the following video formats: .mp4, .avi, and .mov.
-
-First, create a videos_database folder inside the backend directory.
-Then, add subfolders named after the classes of interest, and place your videos inside these subfolders.
-If a class name contains multiple words, please use underscores (_) instead of spaces.
-
-Example folder structure:
-
-```bash
-└── videos_database
-    ├── beach_and_waves
-    ├── big_rocks
-    ├── blue_water
-    ├── boat
-    ├── cliff_water
-    ├── dirty_water
-    └── water_tree_reflect
-```
-
-### 2. Generate embeddings
-
-From the backend directory, run:
-
-```bash
-python utils/process_videos.py
-```
-
-This script will generate embeddings for each video as well as thumbnails for display in the application.
-Execution time may vary depending on the size of your video database.
 
 ### 3. Start the backend server
 
 Still in the backend directory, run:
 
 ```bash
+cd backend
+python -m venv venv && source venv/bin/activate
 uvicorn main:app --reload
 ```
 
 ### 4. Launch the frontend application
 
 ```bash
-cd ../frontend
-npm install
+cd frontend
 npm run dev
 ```
 
