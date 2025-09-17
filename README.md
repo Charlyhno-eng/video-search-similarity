@@ -243,13 +243,12 @@ EfficientNet is known for its lightweight and efficient performance, making it s
 Chroma is the open-source AI application database. Chroma makes it easy to build LLM apps by making knowledge, facts, and skills pluggable for LLMs.
 
 Chroma gives you everything you need for retrieval:
-
-    Store embeddings and their metadata
-    Vector search
-    Full-text search
-    Document storage
-    Metadata filtering
-    Multi-modal retrieval
+- Store embeddings and their metadata
+- Vector search
+- Full-text search
+- Document storage
+- Metadata filtering
+- Multi-modal retrieval
 
 Chroma runs as a server and provides Python and JavaScript/TypeScript client SDKs. Check out the Colab demo (yes, it can run in a Jupyter notebook).
 
