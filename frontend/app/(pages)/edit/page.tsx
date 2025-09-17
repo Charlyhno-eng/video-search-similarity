@@ -5,6 +5,7 @@ import { Container, Typography, Box, Paper } from "@mui/material";
 import { ManageClasses } from "./_components/ManageClasses";
 import { UploadVideo } from "./_components/UploadVideo";
 import { HelpPopup } from "./_components/HelpPopup";
+import { ManageVideos } from "./_components/ManageVideos";
 import { API_BASE_URL } from "@/shared/constants";
 
 export default function Edit() {
@@ -29,7 +30,7 @@ export default function Edit() {
   }, []);
 
   return (
-    <Container sx={{ display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "100vh" }}>
+    <Container sx={{ display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "100vh", gap: 4 }}>
       <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
         <Paper sx={{ flex: 1, p: 3, border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: 2, bgcolor: "transparent" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
@@ -45,7 +46,14 @@ export default function Edit() {
         </Paper>
       </Box>
 
-      {message && (<Typography color="primary" sx={{ mt: 3, textAlign: "center" }}>{message}</Typography>)}
+      <Paper sx={{ p: 3, border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: 2, bgcolor: "transparent", width: "96%" }}>
+        <Typography variant="h4" mb={2} sx={{ color: "#ffffff" }}>Delete Videos</Typography>
+        <ManageVideos classes={classes} setMessage={setMessage} />
+      </Paper>
+
+      {message && (
+        <Typography color="primary" sx={{ mt: 3, textAlign: "center" }}>{message}</Typography>
+      )}
     </Container>
   );
 }

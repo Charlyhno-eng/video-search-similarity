@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import cv2
-from fastapi import FastAPI, File, UploadFile, Form, Body
+from fastapi import FastAPI, File, UploadFile, Form, Body, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
@@ -197,6 +197,20 @@ def extract_first_frame_base64(video_bytes: bytes) -> str | None:
     return f"data:image/jpeg;base64,{base64_str}"
 
 # --- Endpoints ---
+@app.get("/get-classes/")
+async def get_classes():
+    classes = [d for d in os.listdir(VIDEOS_DIR) if os.path.isdir(os.path.join(VIDEOS_DIR, d))]
+    return {"classes": classes}
+
+@app.post("/create-class/")
+async def create_class(className: str = Body(..., embed=True)):
+    formatting_class_name = "".join([c.lower() if c.isalnum() else "_" for c in className])
+    video_dir = os.path.join(VIDEOS_DIR, formatting_class_name)
+    thumb_dir = os.path.join(THUMBNAILS_DIR, formatting_class_name)
+    os.makedirs(video_dir, exist_ok=True)
+    os.makedirs(thumb_dir, exist_ok=True)
+    return {"message": f"Class '{formatting_class_name}' created successfully"}
+
 @app.post("/upload-video/")
 async def upload_video(file: UploadFile = File(...)):
     contents = await file.read()
@@ -241,19 +255,23 @@ async def upload_video(file: UploadFile = File(...)):
         "message": "Video received, embedding extracted, similar videos found"
     }
 
-@app.get("/get-classes/")
-async def get_classes():
-    classes = [d for d in os.listdir(VIDEOS_DIR) if os.path.isdir(os.path.join(VIDEOS_DIR, d))]
-    return {"classes": classes}
+@app.get("/list-videos/")
+async def list_videos(class_name: str):
+    video_dir = os.path.join(VIDEOS_DIR, class_name)
 
-@app.post("/create-class/")
-async def create_class(className: str = Body(..., embed=True)):
-    formatting_class_name = "".join([c.lower() if c.isalnum() else "_" for c in className])
-    video_dir = os.path.join(VIDEOS_DIR, formatting_class_name)
-    thumb_dir = os.path.join(THUMBNAILS_DIR, formatting_class_name)
-    os.makedirs(video_dir, exist_ok=True)
-    os.makedirs(thumb_dir, exist_ok=True)
-    return {"message": f"Class '{formatting_class_name}' created successfully"}
+    if not os.path.exists(video_dir):
+        return {"videos": []}
+
+    videos = []
+    for f in os.listdir(video_dir):
+        if f.lower().endswith((".mp4", ".mov", ".avi", ".mkv")):
+            videos.append({
+                "filename": f,
+                "video_path": BASE_VIDEO_URL + f"{class_name}/{f}",
+                "thumbnail_path": BASE_THUMB_URL + f"{class_name}/{os.path.splitext(f)[0]}.jpg"
+            })
+
+    return {"videos": videos}
 
 @app.post("/add-video/")
 async def add_video(file: UploadFile = File(...), label: str = Form(...)):
@@ -289,3 +307,18 @@ async def add_video(file: UploadFile = File(...), label: str = Form(...)):
         "video_path": video_path,
         "thumbnail_path": thumb_path
     }
+
+@app.delete("/delete-video/")
+async def delete_video(class_name: str = Form(...), filename: str = Form(...)):
+    video_path = os.path.join(VIDEOS_DIR, class_name, filename)
+    thumb_path = os.path.join(THUMBNAILS_DIR, class_name, os.path.splitext(filename)[0] + ".jpg")
+    video_id = f"{class_name}_{os.path.splitext(filename)[0]}"
+
+    if os.path.exists(video_path):
+        os.remove(video_path)
+    if os.path.exists(thumb_path):
+        os.remove(thumb_path)
+
+    collection.delete(ids=[video_id])
+
+    return {"message": f"Video '{filename}' deleted successfully"}
