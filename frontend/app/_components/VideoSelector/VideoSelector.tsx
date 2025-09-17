@@ -73,12 +73,8 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
           <Card sx={{ width: "100%", mt: 4 }}>
             <CardMedia component="img" height="350" image={backendResponse.uploaded_thumbnail_base64} alt={backendResponse.filename} />
             <CardContent>
-              <Typography variant="subtitle1" noWrap>
-                {backendResponse.filename}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mt={1}>
-                Backend: {backendResponse.message}
-              </Typography>
+              <Typography variant="subtitle1" noWrap>{backendResponse.filename}</Typography>
+              <Typography variant="body2" color="text.secondary" mt={1}>Backend: {backendResponse.message}</Typography>
             </CardContent>
           </Card>
         )}

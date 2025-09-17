@@ -57,18 +57,21 @@ export const ManageClasses: React.FC<ManageClassesProps> = ({ setClasses, setMes
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <TextField
         label="New Class Name"
         value={className}
-        onChange={(e) => setClassName(e.target.value)}
+        onChange={(e) => setClassName(e.target.value.replace(/[^a-zA-Z0-9 ]/g, "")) }
+        fullWidth
+        size="medium"
         sx={{
           input: { color: 'white' },
           label: { color: 'rgba(255,255,255,0.7)' },
           '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } }
         }}
       />
-      <CustomButton type="button" label="Create Class" onClick={handleCreateClass} />
+
+      <CustomButton type="button" label="Create Class" onClick={handleCreateClass} fullWidth />
     </Box>
   );
 };

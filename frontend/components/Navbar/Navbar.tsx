@@ -20,11 +20,11 @@ export default function Navbar() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
           <Link component={NextLink} href="/" underline="none" sx={{ fontWeight: "bold", letterSpacing: "1px", lineHeight: 1 }}>
             <span style={{ color: "#1976d2", fontSize: "1.8rem" }}>V</span>
-            <span style={{ color: "white", fontSize: "1rem" }}>ideo</span>
+            <span style={{ color: "#ffffff", fontSize: "1rem" }}>ideo</span>
             <span style={{ color: "#1976d2", fontSize: "1.8rem" }}>S</span>
-            <span style={{ color: "white", fontSize: "1rem" }}>earch</span>
+            <span style={{ color: "#ffffff", fontSize: "1rem" }}>earch</span>
             <span style={{ color: "#1976d2", fontSize: "1.8rem" }}>S</span>
-            <span style={{ color: "white", fontSize: "1rem" }}>imilarity</span>
+            <span style={{ color: "#ffffff", fontSize: "1rem" }}>imilarity</span>
           </Link>
         </Box>
 

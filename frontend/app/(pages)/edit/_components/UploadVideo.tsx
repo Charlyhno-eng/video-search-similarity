@@ -4,11 +4,12 @@ import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants";
 import { CustomButton } from "@/components/CustomButton/CustomButton";
 import { useState } from "react";
+import { Movie } from "@mui/icons-material";
 
 type UploadVideoProps = {
   classes: string[];
   setMessage: React.Dispatch<React.SetStateAction<string>>;
-}
+};
 
 export const UploadVideo: React.FC<UploadVideoProps> = ({ classes, setMessage }) => {
   const [selectedClass, setSelectedClass] = useState("");
@@ -44,24 +45,18 @@ export const UploadVideo: React.FC<UploadVideoProps> = ({ classes, setMessage })
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
-      <FormControl fullWidth sx={{
-        input: { color: 'white' },
-        label: { color: 'rgba(255,255,255,0.7)' },
-        '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' } }
-      }}>
-        <InputLabel sx={{ color: "white" }}>Select Class</InputLabel>
-        <Select
-          value={selectedClass}
-          onChange={(e) => setSelectedClass(e.target.value)}
-          displayEmpty
-          sx={{ color: "white" }}
-        >
-          {classes.map((cls) => (<MenuItem key={cls} value={cls}>{cls}</MenuItem>))}
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: "rgba(255, 255, 255, 0.2)" } } }}>
+        <InputLabel sx={{ color: "#ffffff" }}>Select Class</InputLabel>
+        <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} displayEmpty fullWidth sx={{ color: "#ffffff" }}>
+          {classes.map((cls) => ( <MenuItem key={cls} value={cls}>{cls}</MenuItem> ))}
         </Select>
       </FormControl>
 
-      <input type="file" accept={VIDEO_EXTENSIONS} onChange={(e) => e.target.files && setVideoFile(e.target.files[0])} style={{ color: "white" }} />
+      <input accept={VIDEO_EXTENSIONS} style={{ display: "none" }} id="upload-video-file" type="file" onChange={(e) => e.target.files && setVideoFile(e.target.files[0])} />
+      <label htmlFor="upload-video-file">
+        <CustomButton label={videoFile ? `Selected: ${videoFile.name}` : "Choose a video"} component="span" startIcon={<Movie />} />
+      </label>
 
       <CustomButton type="button" label="Upload Video" onClick={handleVideoUpload} />
     </Box>
