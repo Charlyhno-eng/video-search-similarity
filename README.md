@@ -16,28 +16,60 @@ The frontend is built with **Next.js** and **MUI**, while the backend is impleme
 
 ## Intallation
 
-### 1. Set up the video database
+### 1. Install everything needed for the project
 
-Regarding the installation, you have two options. If you are on Linux Mint or a Linux with a distribution similar to Linux Mint, I have a script "installation_script.sh" at the root of the project. This script installs everything from A to Z, it installs node, python, then installs the python libraries necessary for the project and does the same for nextjs.<br />
+Regarding the installation, you have two options. If you are on Linux Mint or a Linux with a distribution similar to Linux Mint, I have a script "installation_script.sh" at the root of the project. This script installs everything from A to Z, it installs node, python, then installs the python libraries necessary for the project and does the same for nextjs.
 
-The other option is to follow these steps :
+In case you already have python and node installed on your computer, please follow these steps :
 - Clone the Github repository
-- Go to the repository:
+- Go to the repository :
 ```bash
 cd video-search-similarity
 ```
+- Install dependencies for the backend :
+```bash
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+```
+- Install dependencies for the frontend :
+```bash
+cd ../frontend
+npm install
+```
 
-### 3. Start the backend server
+### 2. Set up the video database
 
-Still in the backend directory, run:
+You also have two options for configuring the video database.
+
+The first is to launch the application and go to the "Edit the database" page. On this page, you'll be able to create your classes (classes are used to sort videos; for example, you can have a sea class, a wave class, a whale class, etc.). You can then add images to these classes.
+
+The other option is if you already have a folder containing lots of videos. You'll rename the folder containing your videos to **"db_videos"** You'll place this folder in the project's **"backend"** folder.
+
+Ideally, you'll want to organize these videos properly. To do this, I recommend creating subfolders, such as "ocean_and_mountain". You'll place all the videos corresponding to this class name inside.
+
+Once this is done, write these command lines :
 
 ```bash
 cd backend
 python -m venv venv && source venv/bin/activate
+python utils/process_videos.py
+```
+
+The python utils/process_videos.py command may take a while to execute depending on the number of videos you have.
+
+### 3. Start the backend server
+
+Still in the backend directory, run :
+
+```bash
+cd backend
 uvicorn main:app --reload
 ```
 
 ### 4. Launch the frontend application
+
+In another terminal window, run :
 
 ```bash
 cd frontend
@@ -116,7 +148,9 @@ $$
 
 It considers both magnitude and direction of the vectors, making it intuitive but sensitive to scale.
 
-- #### **Cosine Similarity / Cosine Distance**
+Euclidean distance is used by default by ChromaDB, if you want to modify this parameter go to the ChromaDB documentation.
+
+- #### **Cosine Distance**
 
 Cosine similarity measures the angle between two vectors, ignoring their magnitude.
 It is often converted into a distance:
