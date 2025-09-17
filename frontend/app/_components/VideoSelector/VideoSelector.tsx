@@ -10,7 +10,7 @@ import { API_BASE_URL, VIDEO_EXTENSIONS } from "@/shared/constants"
 type BackendResponse = {
   filename: string;
   message: string;
-  thumbnail_url: string;
+  uploaded_thumbnail_base64: string | null;
   similar_videos: SimilarVideoType[];
 };
 
@@ -62,26 +62,23 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10, width: "100%" }}>
       <input accept={VIDEO_EXTENSIONS} style={{ display: "none" }} id="contained-button-file" type="file" onChange={handleVideoChange} />
       <label htmlFor="contained-button-file">
-        <CustomButton
-          label={loading ? "Uploading..." : "Select a video"}
-          component="span"
-          startIcon={<Movie />}
-          disabled={loading}
-        />
+        <CustomButton label={loading ? "Uploading..." : "Select a video"} component="span" startIcon={<Movie />} disabled={loading} />
       </label>
 
-      {loading && (
-        <Box sx={{ mt: 4 }}><CircularProgress size="3rem" /></Box>
-      )}
+      {loading && ( <Box sx={{ mt: 4 }}><CircularProgress size="3rem" /></Box> )}
 
       {!loading &&
         backendResponse &&
-        backendResponse.similar_videos.length > 0 && (
+        backendResponse.uploaded_thumbnail_base64 && (
           <Card sx={{ width: "100%", mt: 4 }}>
-            <CardMedia component="img" height="350" image={backendResponse.similar_videos[0].thumbnail_url} alt={backendResponse.similar_videos[0].filename} />
+            <CardMedia component="img" height="350" image={backendResponse.uploaded_thumbnail_base64} alt={backendResponse.filename} />
             <CardContent>
-              <Typography variant="subtitle1" noWrap>{backendResponse.filename}</Typography>
-              <Typography variant="body2" color="text.secondary" mt={1}>Backend: {backendResponse.message}</Typography>
+              <Typography variant="subtitle1" noWrap>
+                {backendResponse.filename}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mt={1}>
+                Backend: {backendResponse.message}
+              </Typography>
             </CardContent>
           </Card>
         )}

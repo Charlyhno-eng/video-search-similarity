@@ -12,6 +12,8 @@ from efficientnet_pytorch import EfficientNet
 import chromadb
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import base64
+from io import BytesIO
 
 app = FastAPI()
 
@@ -74,6 +76,7 @@ def extract_frames_from_bytes(video_bytes, n_frames=10):
     tmp_file = "temp_video.mp4"
     with open(tmp_file, "wb") as f:
         f.write(video_bytes)
+
     cap = cv2.VideoCapture(tmp_file)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     if total_frames == 0:
@@ -88,8 +91,10 @@ def extract_frames_from_bytes(video_bytes, n_frames=10):
         ret, frame = cap.read()
         if not ret:
             break
+
         if idx in frame_indices:
             frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+
         idx += 1
     cap.release()
     os.remove(tmp_file)
@@ -109,11 +114,13 @@ def extract_video_embedding_from_bytes_sync(video_bytes):
     frames = extract_frames_from_bytes(video_bytes, n_frames=5)
     if not frames:
         return None
+
     img_tensors = torch.stack([transform(img) for img in frames]).to(device)
     with torch.no_grad():
         features = model.extract_features(img_tensors)
         pooled = F.adaptive_avg_pool2d(features, 1).view(features.size(0), -1)
         embeddings = pooled.cpu().numpy()
+
     return np.mean(embeddings, axis=0)
 
 
@@ -148,12 +155,13 @@ def generate_thumbnail(video_path, thumb_path):
         ret, frame = cap.read()
         if not ret:
             break
+
         if idx == mid_frame_idx:
             cv2.imwrite(thumb_path, frame)
             break
+
         idx += 1
     cap.release()
-
 
 def distance_to_similarity(distance):
     """
@@ -167,6 +175,29 @@ def distance_to_similarity(distance):
     """
     return float(100 * (1 / (1 + distance)))
 
+import base64
+from io import BytesIO
+
+def extract_first_frame_base64(video_bytes: bytes) -> str | None:
+    """Extract the first frame of a video as a base64 encoded JPEG string."""
+    tmp_file = "temp_input_video.mp4"
+    with open(tmp_file, "wb") as f:
+        f.write(video_bytes)
+
+    cap = cv2.VideoCapture(tmp_file)
+    ret, frame = cap.read()
+    cap.release()
+    os.remove(tmp_file)
+
+    if not ret:
+        return None
+
+    # Convert to RGB and PIL
+    img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG")
+    base64_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:image/jpeg;base64,{base64_str}"
 
 # --- Endpoints ---
 @app.post("/upload-video/")
@@ -179,15 +210,20 @@ async def upload_video(file: UploadFile = File(...)):
 
     results = collection.query(
         query_embeddings=[embedding.tolist()],
-        n_results=6
+        n_results=10
     )
 
+    uploaded_filename = os.path.basename(file.filename)
     similar_videos = []
+
     for i, vid_id in enumerate(results['ids'][0]):
         metadata = results['metadatas'][0][i]
         filename = os.path.basename(metadata['video_path'])
         label = metadata.get("class", "unknown")
         thumb_url = BASE_THUMB_URL + f"{label}/{os.path.splitext(filename)[0]}.jpg"
+
+        if filename == uploaded_filename:
+            continue
 
         distance = results['distances'][0][i] if 'distances' in results else None
         similarity_percent = distance_to_similarity(distance) if distance is not None else None
@@ -200,14 +236,11 @@ async def upload_video(file: UploadFile = File(...)):
             "subfolder": label
         })
 
-    uploaded_base_name = os.path.splitext(file.filename)[0]
-    uploaded_thumb_url = BASE_THUMB_URL + uploaded_base_name + ".jpg"
-
     return {
         "filename": file.filename,
         "embedding": embedding.tolist(),
-        "thumbnail_url": uploaded_thumb_url,
-        "similar_videos": similar_videos,
+        "uploaded_thumbnail_base64": extract_first_frame_base64(contents),  # Extract thumbnail from input video
+        "similar_videos": similar_videos[:6],
         "message": "Video received, embedding extracted, similar videos found"
     }
 
