@@ -29,7 +29,7 @@ cd video-search-similarity
 - Install dependencies for the backend :
 ```bash
 cd backend
-python -m venv venv && source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
 - Install dependencies for the frontend :
@@ -52,7 +52,7 @@ Once this is done, write these command lines :
 
 ```bash
 cd backend
-python -m venv venv && source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 python utils/process_videos.py
 ```
 
