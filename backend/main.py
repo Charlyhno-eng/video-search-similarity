@@ -239,10 +239,12 @@ async def upload_video(file: UploadFile = File(...)):
         distance = results['distances'][0][i] if 'distances' in results else None
         similarity_percent = distance_to_similarity(distance) if distance is not None else None
 
+        video_url = BASE_VIDEO_URL + f"{label}/{filename}"
+
         similar_videos.append({
             "filename": filename,
             "similarity": similarity_percent,
-            "url": metadata['video_path'],
+            "url": video_url,
             "thumbnail_url": thumb_url,
             "subfolder": label
         })
@@ -250,7 +252,8 @@ async def upload_video(file: UploadFile = File(...)):
     return {
         "filename": file.filename,
         "embedding": embedding.tolist(),
-        "uploaded_thumbnail_base64": extract_first_frame_base64(contents),  # Extract thumbnail from input video
+        "uploaded_thumbnail_base64": extract_first_frame_base64(contents),
+        "url": BASE_VIDEO_URL + file.filename,
         "similar_videos": similar_videos[:6],
         "message": "Video received, embedding extracted, similar videos found"
     }

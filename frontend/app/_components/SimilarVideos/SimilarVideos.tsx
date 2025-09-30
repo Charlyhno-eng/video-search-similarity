@@ -10,6 +10,10 @@ export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
     );
   }
 
+  const handleThumbnailClick = (videoUrl: string) => {
+    window.open(videoUrl, "_blank");
+  };
+
   return (
     <Box sx={{ width: "100%" }}>
       <Typography variant="h6" gutterBottom align="center" sx={{ fontWeight: "bold", mb: 2 }}>Most Similar Videos</Typography>
@@ -18,13 +22,19 @@ export function SimilarVideos({ videos }: { videos: SimilarVideoType[] }) {
         {videos.map((vid, index) => (
           <Grid key={index} size={6}>
             <Card>
-              <CardMedia component="img" height="200" image={vid.thumbnail_url} alt={vid.thumbnail_url} />
+              <CardMedia
+                component="img"
+                height="200"
+                image={vid.thumbnail_url}
+                alt={vid.thumbnail_url}
+                sx={{ cursor: "pointer" }}
+                onClick={() => handleThumbnailClick(vid.url)}
+              />
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Typography variant="subtitle1" noWrap>{vid.filename}</Typography>
-                  <Typography variant="body2" color="text.secondary">Similarity : {(vid.similarity).toFixed(2)}%</Typography>
+                  <Typography variant="body2" color="text.secondary">Similarity : {vid.similarity.toFixed(2)}%</Typography>
                 </Box>
-
                 <Typography variant="body2" color="text.secondary">Video class : {formatFolderName(vid.subfolder)}</Typography>
               </CardContent>
             </Card>

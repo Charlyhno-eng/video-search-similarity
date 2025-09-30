@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Box, Card, CardContent, CardMedia, Typography, CircularProgress } from "@mui/material";
 import { CustomButton } from "@/components/CustomButton/CustomButton";
 import { Movie } from "@mui/icons-material";
@@ -12,11 +12,19 @@ type BackendResponse = {
   message: string;
   uploaded_thumbnail_base64: string | null;
   similar_videos: SimilarVideoType[];
+  url?: string;
 };
 
 export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: SimilarVideoType[]) => void }) {
   const [backendResponse, setBackendResponse] = useState<BackendResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [localVideoUrl, setLocalVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (localVideoUrl) URL.revokeObjectURL(localVideoUrl);
+    };
+  }, [localVideoUrl]);
 
   const uploadVideo = async (file: File) => {
     const formData = new FormData();
@@ -35,6 +43,9 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
       const file = event.target.files?.[0];
       if (!file) return;
 
+      if (localVideoUrl) URL.revokeObjectURL(localVideoUrl);
+
+      setLocalVideoUrl(URL.createObjectURL(file));
       setLoading(true);
       try {
         const response: BackendResponse = await uploadVideo(file);
@@ -55,8 +66,13 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
       } finally {
         setLoading(false);
       }
-    }, [onSimilarVideos]
+    }, [onSimilarVideos, localVideoUrl]
   );
+
+  const handleUploadedThumbnailClick = () => {
+    const urlToOpen = localVideoUrl ?? backendResponse?.url ?? null;
+    if (urlToOpen) window.open(urlToOpen, "_blank");
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10, width: "100%" }}>
@@ -71,7 +87,14 @@ export function VideoSelector({ onSimilarVideos }: { onSimilarVideos: (videos: S
         backendResponse &&
         backendResponse.uploaded_thumbnail_base64 && (
           <Card sx={{ width: "100%", mt: 4 }}>
-            <CardMedia component="img" height="350" image={backendResponse.uploaded_thumbnail_base64} alt={backendResponse.filename} />
+            <CardMedia
+              component="img"
+              height="350"
+              image={backendResponse.uploaded_thumbnail_base64}
+              alt={backendResponse.filename}
+              sx={{ cursor: "pointer" }}
+              onClick={handleUploadedThumbnailClick}
+            />
             <CardContent>
               <Typography variant="subtitle1" noWrap>{backendResponse.filename}</Typography>
               <Typography variant="body2" color="text.secondary" mt={1}>Backend: {backendResponse.message}</Typography>
